@@ -123,9 +123,6 @@ def getPage(url)
 end
  
 def main
-  # Open anime list (anime_list = saved HTML of
-  # <ul>...</ul>
-  # sidebar from animecrazy.net)
   anime_list = Hpricot(open('anime_list', 'r') { |f| f.read })
   puts2 "Anime list open"
  
