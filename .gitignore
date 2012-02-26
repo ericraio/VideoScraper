@@ -3,3 +3,4 @@ anime_list
 **/*.swp
 *.swp
 Gemfile.lock
+*.bak
