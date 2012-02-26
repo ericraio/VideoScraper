@@ -4,3 +4,4 @@ anime_list
 *.swp
 Gemfile.lock
 *.bak
+cache/
