@@ -11,12 +11,7 @@ $mech.user_agent_alias = 'Mac Safari'
 
 ###############################
 $skip_until = false
-DEBUG=false
 ###############################
-
-def debug?
-  DEBUG
-end
 
 def puts2(txt='')
   puts "*** #{txt}"
@@ -106,9 +101,17 @@ end
 $cache = Cache.new
 
 def fetch(url)
-  body = $mech.get(url).body()
-  $cache.put(url, body)
-  body
+  links = $mech.get(url).links
+  links.each do |link|
+    begin
+      page = link.click
+      post = page.search('.post embed')
+      $cache.put(link, post)
+      post
+    rescue
+      nil
+    end
+  end
 end
 
 def getPage(url)
