@@ -58,7 +58,6 @@ class Cache
     # key/val = url/filename (of fetched data)
     @datafile = "#{@path}/cache.data"
     @cache = load(@datafile)
-    #puts @cache.inspect
   end
 
   def put(key, val)
@@ -105,17 +104,19 @@ def fetch(url)
   links.each do |link|
     begin
       page = link.click
-      post = page.search('.post embed')
-      $cache.put(link, post)
-      post
+      title = page.search('h1') 
+      video = page.search('p embed')
+      post = title + video
+      $cache.put(link, post) unless video.empty?
     rescue
+      # Skip if the link has no video
       nil
     end
   end
 end
 
 def getPage(url)
-  # First let's see if this is cached already.
+  # First let's see if this is cached already
   body = $cache.get(url) 
 
   if body.nil?
@@ -147,78 +148,6 @@ def main
     puts2 "Snatched that bitch (#{body.size} bytes of Anime Goodness)"
     puts2
 
-    doc = Hpricot(body)
-    (doc/"td/a[@rel='bookmark']").each do |episode|
-      name = clean(episode.inner_text)
-
-      if $skip_until
-        #$skip_until = !inUrl(episode[:href], 'basilisk-episode-2')
-        #$skip_until = nil == name['Tsubasa Chronicles']
-        puts2 "Resuming from #{episode[:href]}" if !$skip_until
-        next
-      end
-
-      # Here it gets tricky. This is a major source of inconsistencies in the site.
-      # They group episodes into 1 post sometimes, and the only way to find
-      # out from the title of the post is by checking for the following patterns
-      # (7 and 8 are example episode #s)
-      # X = 7+8, 7 + 8, 7 and 8, 7and8, 7 &amp; 8, 7&amp;8
-
-      # If an episode has no X then it is 1 episode.
-      # If it has multiple parts, they are mirrors.
-      if single_episode? name
-        begin
-          puts2 "Adding episode #{name}..."
-          ep = Episode.new(name, episode[:href])
-          ep.src = getPage(episode[:href])
-          anime.episode! ep
-        rescue Mechanize::ResponseCodeError
-          puts2 "ERROR: Page not found? Skipping..."
-          puts name
-          puts2 episode[:href]
-        end
-      else
-        # If an episode DOES have X, it *may* have 2 episodes (but may have mirrors, going up to 4 parts/vids per page).
-        # Multiple parts will be the individual episodes in chronological order.
-        puts2 "Help me! I'm confused @ '#{name}'"
-        puts2 "This post might contain multiple episodes..."
-
-        puts2 "Please visit this URL and verify the following:"
-        puts episode[:href]
-
-        if agree("Is this 1 episode? yes/no ")
-          begin
-            puts2 "Adding episode #{name}..."
-            ep = Episode.new(name, episode[:href])
-            ep.src = getPage(episode[:href])
-            anime.episode! ep
-          rescue Mechanize::ResponseCodeError
-            puts2 "ERROR: Page not found? Skipping..."
-            puts name
-            puts2 episode[:href]
-          end
-        else
-          more = true
-          while more
-            ename = ask("Enter the name of an episode: ")
-            eurl =  ask("Enter the URL of an episode: ")
-
-            begin
-              puts2 "Adding episode #{ename}..."
-              ep = Episode.new(name, episode[:href])
-              ep.src = getPage(episode[:href])
-              anime.episode! ep
-            rescue Mechanize::ResponseCodeError
-              puts2 "ERROR: Page not found? Skipping..."
-              puts name
-              puts2 episode[:href]
-            end
-            more = agree("Add another episode? Y/N")
-          end
-          puts2 "Added episodes manually... moving on"
-        end
-      end
-    end
     anime.complete!
     # XXX save the entire anime object, instead of just cache
   end
