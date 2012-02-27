@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'hpricot'
 require 'mechanize'
 require 'tempfile'
 require 'highline/import'
