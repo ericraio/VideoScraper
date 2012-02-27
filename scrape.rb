@@ -8,10 +8,6 @@ HighLine.track_eof = false
 $mech = Mechanize.new
 $mech.user_agent_alias = 'Mac Safari'
 
-###############################
-$skip_until = false
-###############################
-
 def puts2(txt='')
   puts "*** #{txt}"
 end
