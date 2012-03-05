@@ -1,0 +1,7 @@
+development:
+  adapter: mysql2
+  user: root
+  password:
+  database: html_scraper_dev
+  host: localhost
+  logger: false
