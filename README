@@ -1,0 +1,4 @@
+AnimeScraper
+============
+
+This was a scraper that I used to scrape over 100,000 Anime Episodes written in entirely in Ruby. This will write each episode to a MySQL database.
