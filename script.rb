@@ -2,9 +2,6 @@ class Script
   class << self
     def start
       anime_list = Hpricot(open('anime_list', 'r') { |f| f.read })
-      puts "Anime list open"
-
-      # Read in the URL to every series
       masterlist = []
 
       (anime_list/:li/:a).each do |series|
@@ -13,26 +10,21 @@ class Script
         puts "Built structure for #{anime.first}..."
       end
 
-      puts
-
       puts "Fetched #{masterlist.size} animes. Now fetching episodes..."
       masterlist.each do |anime|
-        puts "Fetching body (#{anime.first})"
         begin
+          puts "Fetching body (#{anime.first})"
           series = Anime.create!(title: anime.first)
-          puts "Created new anime series"
         rescue
           series = Anime.find_by_title!(anime.first)
         end
         Scrape.new(anime.last, series.id).fetch
-        puts "Snatched that bitch of Anime Goodness"
-        puts
+        puts "Snatched that bitch of Anime Goodness\n"
       end
     end
 
     def series
       anime_list = Hpricot(open('anime_list', 'r') { |f| f.read })
-      puts "Anime list open"
 
       begin
         (anime_list/:li/:a).each do |series|
